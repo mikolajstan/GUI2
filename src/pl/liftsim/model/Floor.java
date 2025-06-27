@@ -4,27 +4,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Floor {
-    private final int floorNumber;
-    private final List<Passenger> waitingPassengers;
+  private final int floorNumber;
+  private final List<Passenger> waitingPassengers;
 
-    public Floor(int floorNumber) {
-        this.floorNumber = floorNumber;
-        this.waitingPassengers = new ArrayList<>();
-    }
+  public Floor(int floorNumber) {
+    this.floorNumber = floorNumber;
+    this.waitingPassengers = new ArrayList<>();
+  }
 
-    public int getFloorNumber() {
-        return floorNumber;
-    }
+  public int getFloorNumber() {
+    return floorNumber;
+  }
 
-    public void addWWaitingPassenger(Passenger passenger) {
-        waitingPassengers.add(passenger);
-    }
+  public List<Passenger> getWaitingPassengers() {
+    return waitingPassengers;
+  }
 
-    public List<Passenger> getWaitingPassengers() {
-        return new ArrayList<>(waitingPassengers);
-    }
+  public void addWaitingPassenger(Passenger passenger) {
+    waitingPassengers.add(passenger);
+  }
 
-    public void clearWaitingPassengers() {
-        waitingPassengers.clear();
-    }
+  public void addWWaitingPassenger(Passenger passenger) {
+    // This seems to be a typo in your original code
+    addWaitingPassenger(passenger);
+  }
+
+  public void clearWaitingPassengers() {
+    waitingPassengers.clear();
+  }
 }

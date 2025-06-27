@@ -7,30 +7,24 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Central panel showing all floors in a scrollable view Each floor has elevator shaft, call button,
- * and passenger area
- */
 public class FloorViewPanel extends JPanel {
   private final int numFloors;
   private final List<JPanel> floorPanels;
   private final List<JPanel> elevatorShafts;
-  private final List<JButton> callButtons; // Single call button per floor
+  private final List<JButton> callButtons;
   private final List<JPanel> passengerAreas;
   private JScrollPane scrollPane;
+  private JPanel floorsContainer;
+  private ElevatorCarView elevatorCar;
 
-  private static final int FLOOR_HEIGHT = 160;
-  private static final int SEPARATOR_HEIGHT = 5;
+  private static final int FLOOR_HEIGHT = 80;
+  private static final int SEPARATOR_HEIGHT = 3;
   private static final int ELEVATOR_SHAFT_WIDTH = 60;
-  private static final int CALL_BUTTON_WIDTH = 50;
-  private static final int CALL_BUTTON_HEIGHT = 20;
-  private static final int SHAFT_WALL_WIDTH = 3;
+  private static final int SHAFT_WALL_WIDTH = 2;
   private static final Color FLOOR_COLOR = new Color(245, 245, 245);
-  private static final Color SEPARATOR_COLOR = Color.BLACK;
+  private static final Color SEPARATOR_COLOR = Color.LIGHT_GRAY;
   private static final Color SHAFT_COLOR = new Color(220, 220, 220);
   private static final Color SHAFT_BORDER_COLOR = Color.DARK_GRAY;
-  private static final Color CALL_BUTTON_COLOR = Color.BLACK;
-  private static final Color PASSENGER_AREA_COLOR = new Color(255, 255, 240);
 
   public FloorViewPanel(ElevatorModel elevatorModel) {
     this.numFloors = elevatorModel.getFloors().size();
@@ -38,6 +32,7 @@ public class FloorViewPanel extends JPanel {
     this.elevatorShafts = new ArrayList<>();
     this.callButtons = new ArrayList<>();
     this.passengerAreas = new ArrayList<>();
+    this.elevatorCar = new ElevatorCarView(); // Add this line
 
     setupLayout();
     createFloorPanels();
@@ -47,21 +42,15 @@ public class FloorViewPanel extends JPanel {
 
   private void setupLayout() {
     setLayout(new BorderLayout());
-    setBackground(Color.WHITE);
+    setBackground(Color.LIGHT_GRAY);
     setBorder(BorderFactory.createTitledBorder("Building View"));
   }
 
   private void createFloorPanels() {
-    JPanel floorsContainer = new JPanel();
+    floorsContainer = new JPanel();
     floorsContainer.setLayout(new BoxLayout(floorsContainer, BoxLayout.Y_AXIS));
     floorsContainer.setBackground(Color.WHITE);
 
-    // Initialize call button list with nulls first
-    for (int i = 0; i < numFloors; i++) {
-      callButtons.add(null);
-    }
-
-    // Create floors from top to bottom (highest floor number first)
     for (int floor = numFloors; floor >= 1; floor--) {
       JPanel floorPanel = createSingleFloor(floor);
       floorPanels.add(0, floorPanel);
@@ -78,32 +67,89 @@ public class FloorViewPanel extends JPanel {
     add(scrollPane, BorderLayout.CENTER);
   }
 
+  private void paintContinuousShaftWalls(Graphics g) {
+    Graphics2D g2d = (Graphics2D) g.create();
+    g2d.setColor(SHAFT_BORDER_COLOR);
+    g2d.setStroke(new BasicStroke(SHAFT_WALL_WIDTH));
+
+    // Calculate shaft position based on the first floor's shaft
+    if (!floorPanels.isEmpty() && !elevatorShafts.isEmpty()) {
+      // Get the first floor panel to calculate shaft position
+      JPanel firstFloor = floorPanels.getFirst();
+      JPanel firstShaft = elevatorShafts.getFirst();
+
+      // Calculate the x-position of shaft walls relative to the container
+      Point shaftLocation = calculateShaftPosition(firstFloor, firstShaft);
+
+      if (shaftLocation != null) {
+        int leftWallX = shaftLocation.x;
+        int rightWallX = shaftLocation.x + ELEVATOR_SHAFT_WIDTH - SHAFT_WALL_WIDTH;
+
+        // Draw continuous vertical lines from top to bottom
+        g2d.drawLine(leftWallX, 0, leftWallX, getHeight());
+        g2d.drawLine(rightWallX, 0, rightWallX, getHeight());
+      }
+    }
+
+    g2d.dispose();
+  }
+
+  private Point calculateShaftPosition(JPanel floorPanel, JPanel shaftPanel) {
+    try {
+      // Calculate relative position of shaft within the container
+      int floorX = 0;
+      int floorY = 0;
+
+      // Find floor position in container
+      for (Component comp : floorsContainer.getComponents()) {
+        if (comp == floorPanel) {
+          break;
+        }
+        if (comp instanceof JPanel) {
+          floorY += comp.getHeight();
+        }
+      }
+
+      // Add floor's internal positioning
+      floorX += 20; // Floor left padding
+      floorX += 30 + 15; // Label wrapper width + spacing
+      floorX += 15; // Content area left padding
+      floorX += SHAFT_WALL_WIDTH; // Account for shaft wall width
+
+      return new Point(floorX, floorY);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   private JPanel createSingleFloor(int floorNumber) {
     JPanel floor = new JPanel(new BorderLayout());
     floor.setPreferredSize(new Dimension(0, FLOOR_HEIGHT));
-    floor.setMinimumSize(new Dimension(300, FLOOR_HEIGHT));
+    floor.setMinimumSize(new Dimension(200, FLOOR_HEIGHT));
     floor.setBackground(FLOOR_COLOR);
-    floor.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+    floor.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-    // Floor number label
     JLabel floorLabel = new JLabel(String.valueOf(floorNumber), SwingConstants.CENTER);
-    floorLabel.setFont(new Font("Arial", Font.BOLD, 12));
-    floorLabel.setPreferredSize(new Dimension(35, 25));
+    floorLabel.setFont(new Font("Arial", Font.BOLD, 10));
+    floorLabel.setPreferredSize(new Dimension(30, 20));
     floorLabel.setBorder(
         BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.GRAY, 1),
-            BorderFactory.createEmptyBorder(3, 6, 3, 6)));
+            BorderFactory.createEmptyBorder(2, 5, 2, 5)));
     floorLabel.setOpaque(true);
     floorLabel.setBackground(Color.WHITE);
 
-    JPanel labelWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+    JPanel labelWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+    labelWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
     labelWrapper.setBackground(FLOOR_COLOR);
     labelWrapper.add(floorLabel);
 
     floor.add(labelWrapper, BorderLayout.WEST);
 
-    // Create the main content area
     JPanel contentArea = createFloorContentArea(floorNumber);
+    contentArea.setBackground(FLOOR_COLOR);
+    contentArea.setBorder(BorderFactory.createDashedBorder(Color.LIGHT_GRAY, 1, 5, 5, false));
+
     floor.add(contentArea, BorderLayout.CENTER);
 
     return floor;
@@ -112,110 +158,55 @@ public class FloorViewPanel extends JPanel {
   private JPanel createFloorContentArea(int floorNumber) {
     JPanel contentArea = new JPanel(new BorderLayout());
     contentArea.setBackground(FLOOR_COLOR);
-    contentArea.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+    contentArea.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
 
-    // Elevator shaft on the left
+    // Create elevator shaft area on the left side of content
     JPanel elevatorShaft = createElevatorShaft(floorNumber);
-    elevatorShafts.add(elevatorShaft);
+    elevatorShafts.add(elevatorShaft); // Keep track of shafts
     contentArea.add(elevatorShaft, BorderLayout.WEST);
 
-    // Call button and passenger area on the right
-    JPanel rightPanel = createRightPanel(floorNumber);
-    contentArea.add(rightPanel, BorderLayout.CENTER);
+    // Create area for call buttons and passengers (future implementation)
+    JPanel rightArea = createRightArea(floorNumber);
+    contentArea.add(rightArea, BorderLayout.CENTER);
 
     return contentArea;
   }
 
   private JPanel createElevatorShaft(int floorNumber) {
     JPanel shaft = new JPanel(new BorderLayout());
-    shaft.setPreferredSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 30));
-    shaft.setMinimumSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 30));
-    shaft.setMaximumSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 30));
+    shaft.setPreferredSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 20));
+    shaft.setMinimumSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 20));
+    shaft.setMaximumSize(new Dimension(ELEVATOR_SHAFT_WIDTH, FLOOR_HEIGHT - 20));
     shaft.setBackground(SHAFT_COLOR);
 
-    // Add borders for continuous shaft walls
     shaft.setBorder(
         BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(
-                0, SHAFT_WALL_WIDTH, 0, SHAFT_WALL_WIDTH, SHAFT_BORDER_COLOR),
-            BorderFactory.createEmptyBorder(10, 5, 10, 5)));
+            BorderFactory.createMatteBorder(0, 2, 0, 2, SHAFT_BORDER_COLOR),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
-    // Placeholder for elevator car (will be added later)
     JLabel shaftLabel = new JLabel("", SwingConstants.CENTER);
+    shaftLabel.setFont(new Font("Arial", Font.PLAIN, 8));
+    shaftLabel.setForeground(Color.GRAY);
     shaft.add(shaftLabel, BorderLayout.CENTER);
 
     return shaft;
   }
 
-  private JPanel createRightPanel(int floorNumber) {
-    JPanel rightPanel = new JPanel(new BorderLayout());
-    rightPanel.setBackground(FLOOR_COLOR);
-    rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-
-    // Call button panel on the left side of right panel
-    JPanel callButtonPanel = createCallButtonPanel(floorNumber);
-    rightPanel.add(callButtonPanel, BorderLayout.WEST);
-
-    // Passenger area on the right side
-    JPanel passengerArea = createPassengerArea(floorNumber);
-    passengerAreas.add(passengerArea);
-    rightPanel.add(passengerArea, BorderLayout.CENTER);
-
-    return rightPanel;
-  }
-
-  private JPanel createCallButtonPanel(int floorNumber) {
-    JPanel buttonPanel = new JPanel(new BorderLayout());
-    buttonPanel.setBackground(FLOOR_COLOR);
-    buttonPanel.setPreferredSize(new Dimension(80, FLOOR_HEIGHT - 30));
-    buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
-
-    // Single call button for every floor
-    JButton callButton = createCallButton(floorNumber);
-    callButtons.set(floorNumber - 1, callButton);
-
-    // Center the button vertically in the panel
-    JPanel centerWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
-    centerWrapper.setBackground(FLOOR_COLOR);
-    centerWrapper.add(callButton);
-
-    buttonPanel.add(centerWrapper, BorderLayout.SOUTH);
-
-    return buttonPanel;
-  }
-
-  private JButton createCallButton(int floorNumber) {
-    JButton button = new JButton();
-    button.setPreferredSize(new Dimension(CALL_BUTTON_WIDTH, CALL_BUTTON_HEIGHT));
-    button.setMinimumSize(new Dimension(CALL_BUTTON_WIDTH, CALL_BUTTON_HEIGHT));
-    button.setMaximumSize(new Dimension(CALL_BUTTON_WIDTH, CALL_BUTTON_HEIGHT));
-    button.setBackground(CALL_BUTTON_COLOR);
-    button.setFocusPainted(false);
-    button.setBorder(BorderFactory.createRaisedBevelBorder());
-    button.setOpaque(true);
-
-    // Store floor info for later use by controller
-    button.putClientProperty("floor", floorNumber);
-
-    return button;
-  }
-
-  private JPanel createPassengerArea(int floorNumber) {
-    JPanel passengerArea = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
-    passengerArea.setBackground(PASSENGER_AREA_COLOR);
-    passengerArea.setBorder(
+  private JPanel createRightArea(int floorNumber) {
+    JPanel rightArea = new JPanel(new BorderLayout());
+    rightArea.setBackground(FLOOR_COLOR);
+    rightArea.setBorder(
         BorderFactory.createCompoundBorder(
-            BorderFactory.createTitledBorder("Passengers"),
-            BorderFactory.createEmptyBorder(8, 8, 8, 8)));
-    passengerArea.setPreferredSize(new Dimension(250, FLOOR_HEIGHT - 30));
+            BorderFactory.createDashedBorder(Color.LIGHT_GRAY, 1, 5, 5, false),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 
-    // Initially empty - passengers will be added by controller
-    JLabel emptyLabel = new JLabel("No passengers", SwingConstants.CENTER);
-    emptyLabel.setFont(new Font("Arial", Font.ITALIC, 11));
-    emptyLabel.setForeground(Color.GRAY);
-    passengerArea.add(emptyLabel);
+    JLabel placeholderLabel =
+        new JLabel("Call buttons & passengers area - Floor " + floorNumber, SwingConstants.CENTER);
+    placeholderLabel.setFont(new Font("Arial", Font.PLAIN, 9));
+    placeholderLabel.setForeground(Color.GRAY);
+    rightArea.add(placeholderLabel, BorderLayout.CENTER);
 
-    return passengerArea;
+    return rightArea;
   }
 
   private JPanel createSeparator() {
@@ -233,7 +224,6 @@ public class FloorViewPanel extends JPanel {
     separator.setMinimumSize(new Dimension(0, SEPARATOR_HEIGHT));
     separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, SEPARATOR_HEIGHT));
     separator.setOpaque(true);
-
     return separator;
   }
 
@@ -251,21 +241,43 @@ public class FloorViewPanel extends JPanel {
         });
   }
 
-  // Getter methods for controller access
   public List<JPanel> getFloorPanels() {
     return floorPanels;
   }
 
-  public List<JPanel> getElevatorShafts() {
-    return elevatorShafts;
+  public JPanel getFloorPanel(int floorNumber) {
+    if (floorNumber >= 1 && floorNumber <= numFloors) {
+      return floorPanels.get(floorNumber - 1); // Convert to 0-based index
+    }
+    return null;
+  }
+
+  public void updateElevatorPosition(int currentFloor) {
+    // Remove elevator from all shafts first
+    for (JPanel shaft : elevatorShafts) {
+      shaft.removeAll();
+    }
+
+    // Add elevator to current floor shaft (floors are 1-indexed, list is 0-indexed)
+    if (currentFloor >= 1 && currentFloor <= numFloors) {
+      JPanel currentShaft = elevatorShafts.get(numFloors - currentFloor); // Reverse order
+      currentShaft.setLayout(new BorderLayout());
+      currentShaft.add(elevatorCar, BorderLayout.CENTER);
+    }
+
+    // Refresh all shafts
+    for (JPanel shaft : elevatorShafts) {
+      shaft.revalidate();
+      shaft.repaint();
+    }
+  }
+
+  public ElevatorCarView getElevatorCar() {
+    return elevatorCar;
   }
 
   public List<JButton> getCallButtons() {
     return callButtons;
-  }
-
-  public List<JPanel> getPassengerAreas() {
-    return passengerAreas;
   }
 
   public JButton getCallButton(int floorNumber) {
@@ -275,20 +287,31 @@ public class FloorViewPanel extends JPanel {
     return null;
   }
 
-  public JPanel getPassengerArea(int floorNumber) {
+  public List<JPanel> getElevatorShafts() {
+    return elevatorShafts;
+  }
+
+  public JPanel getElevatorShaft(int floorNumber) {
     if (floorNumber >= 1 && floorNumber <= numFloors) {
-      return passengerAreas.get(floorNumber - 1);
+      return elevatorShafts.get(floorNumber - 1);
     }
     return null;
   }
 
   public void scrollToFloor(int floorNumber) {
     if (floorNumber >= 1 && floorNumber <= numFloors) {
-      JPanel targetFloor = floorPanels.get(floorNumber - 1);
+      JPanel targetFloor = getFloorPanel(floorNumber);
       if (targetFloor != null) {
         targetFloor.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
       }
     }
+  }
+
+  public JPanel getPassengerArea(int floorNumber) {
+    if (floorNumber >= 1 && floorNumber <= numFloors) {
+      return passengerAreas.get(floorNumber - 1);
+    }
+    return null;
   }
 
   // Method to add passenger visual representation

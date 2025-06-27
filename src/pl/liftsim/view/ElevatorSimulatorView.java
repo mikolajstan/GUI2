@@ -75,4 +75,8 @@ public class ElevatorSimulatorView extends JFrame {
     panel.setPreferredSize(new Dimension(200, 100)); // temp sizing
     return panel;
   }
+
+  public FloorViewPanel getFloorViewPanel() {
+    return floorViewPanel;
+  }
 }
