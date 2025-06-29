@@ -1,11 +1,16 @@
 package pl.liftsim.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 public class ControlPanel extends JPanel {
   private JButton startButton;
-  private JButton resetButton;
 
   public ControlPanel() {
     setupLayout();
@@ -48,8 +53,4 @@ public class ControlPanel extends JPanel {
       startButton.setText("RUNNING...");
     }
   }
-
-  //  public JButton getResetButton() {
-  //    return resetButton;
-  //  }
 }

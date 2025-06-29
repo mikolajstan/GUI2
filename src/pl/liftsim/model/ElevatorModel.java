@@ -37,7 +37,13 @@ public class ElevatorModel {
     for (Floor floor : floors) {
       int numPassengers = random.nextInt(MAX_ELEVATOR_CAPACITY + 1);
       for (int i = 0; i < numPassengers; i++) {
-        Passenger passenger = new Passenger(passengerId++, floor.getFloorNumber());
+        int destinationFloor;
+        do {
+          destinationFloor = random.nextInt(MAX_FLOORS) + 1; // Ensure destination is different
+        } while (destinationFloor == floor.getFloorNumber());
+
+        Passenger passenger =
+            new Passenger(passengerId++, floor.getFloorNumber(), destinationFloor);
         floor.addWaitingPassenger(passenger);
       }
     }

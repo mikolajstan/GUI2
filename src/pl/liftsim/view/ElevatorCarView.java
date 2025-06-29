@@ -1,10 +1,18 @@
 package pl.liftsim.view;
 
-import pl.liftsim.model.Passenger;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
+import pl.liftsim.model.Passenger;
 
 /** Visual representation of the elevator car that moves within the shaft */
 public class ElevatorCarView extends JPanel {

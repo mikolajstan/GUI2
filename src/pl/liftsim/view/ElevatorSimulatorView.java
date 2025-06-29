@@ -1,9 +1,17 @@
 package pl.liftsim.view;
 
-import pl.liftsim.model.ElevatorModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import pl.liftsim.model.ElevatorModel;
 
 public class ElevatorSimulatorView extends JFrame {
   private ControlPanel controlPanel;
@@ -19,7 +27,7 @@ public class ElevatorSimulatorView extends JFrame {
   private void setupMainWindow() {
     setTitle("Elevator Simulator");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //    setSize(1200, Toolkit.getDefaultToolkit().getScreenSize().height);
+    // setSize(1200, Toolkit.getDefaultToolkit().getScreenSize().height);
     setSize(1100, 600);
     setLocationRelativeTo(null); // Center the window on the screen
   }
@@ -54,8 +62,10 @@ public class ElevatorSimulatorView extends JFrame {
 
     add(floorViewPanel, BorderLayout.CENTER);
 
-    //    add(createPlaceholderPanel("CENTER - Elevator Shaft", Color.WHITE), BorderLayout.CENTER);
-    //    add(createPlaceholderPanel("EAST - Call Buttons", Color.LIGHT_GRAY), BorderLayout.EAST);
+    // add(createPlaceholderPanel("CENTER - Elevator Shaft", Color.WHITE),
+    // BorderLayout.CENTER);
+    // add(createPlaceholderPanel("EAST - Call Buttons", Color.LIGHT_GRAY),
+    // BorderLayout.EAST);
 
     add(controlPanel, BorderLayout.SOUTH);
   }

@@ -12,8 +12,6 @@ public class Main {
     SwingUtilities.invokeLater(
         () -> {
           ElevatorSimulatorView view = new ElevatorSimulatorView(elevatorModel);
-          ElevatorController controller = new ElevatorController(elevatorModel, view);
-
           // Initialize elevator at floor 1
           view.getFloorViewPanel().updateElevatorPosition(1);
 

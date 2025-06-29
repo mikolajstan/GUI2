@@ -24,11 +24,6 @@ public class Floor {
     waitingPassengers.add(passenger);
   }
 
-  public void addWWaitingPassenger(Passenger passenger) {
-    // This seems to be a typo in your original code
-    addWaitingPassenger(passenger);
-  }
-
   public void clearWaitingPassengers() {
     waitingPassengers.clear();
   }

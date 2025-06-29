@@ -1,14 +1,31 @@
 package pl.liftsim.view;
 
-import pl.liftsim.model.ElevatorModel;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
+import pl.liftsim.model.ElevatorModel;
+
 /**
- * Central panel showing all floors in a scrollable view Each floor has elevator shaft, call button,
+ * Central panel showing all floors in a scrollable view Each floor has elevator
+ * shaft, call button,
  * and passenger area
  */
 public class FloorViewPanel extends JPanel {
@@ -246,15 +263,14 @@ public class FloorViewPanel extends JPanel {
   }
 
   private JPanel createSeparator() {
-    JPanel separator =
-        new JPanel() {
-          @Override
-          protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.setColor(SEPARATOR_COLOR);
-            g.fillRect(0, 0, getWidth(), getHeight());
-          }
-        };
+    JPanel separator = new JPanel() {
+      @Override
+      protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(SEPARATOR_COLOR);
+        g.fillRect(0, 0, getWidth(), getHeight());
+      }
+    };
 
     separator.setPreferredSize(new Dimension(0, SEPARATOR_HEIGHT));
     separator.setMinimumSize(new Dimension(0, SEPARATOR_HEIGHT));
